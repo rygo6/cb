@@ -1,4 +1,4 @@
-# C♭ (CFlat)
+# C♭ (CFlat): Minimal C-Style, Data-Oriented C++ Dialect
 
 *C♭* is written `Cb` or `CFlat` in code and ASCII contexts. It is pronounced "C-flat."
 

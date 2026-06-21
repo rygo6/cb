@@ -1,0 +1,7 @@
+stl_header_bench/build/
+
+__pycache__/
+*.o
+*.s
+*.exe
+*.pyc
