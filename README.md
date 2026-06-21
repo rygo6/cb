@@ -133,13 +133,13 @@ There are minor version and diagnostic differences at the edges. That is why the
 ## What breaks
 
 - `std::vector`, `std::string`, `std::map`, `std::unordered_map`, `std::function`, `std::shared_ptr`, anything with runtime allocation backed by libstdc++.
-- `std::cout`, `std::cerr`, `std::cin`, iostreams. Use `<cstdio>` instead.
+- `std::cout`, `std::cerr`, `std::cin`, iostreams. Use libc I/O directly, such as `stdio.h`, instead.
 - `throw`, `try`, `catch`. Will not work as intended.
 - `dynamic_cast`, `typeid` on polymorphic types.
 - Function-local `static T x = runtime_init()`. Lift to file-scope or `constexpr`.
 - Most third-party C++ libraries that assume `-lstdc++` is on the link line.
 
-libc remains fully usable. `<cstdio>`, `<cstdlib>`, `<cstring>`, `<cmath>`, `<ctime>`, POSIX, and C libraries all still work.
+libc remains fully usable. Prefer the direct libc/POSIX C headers, such as `stdio.h`, `stdlib.h`, `string.h`, `math.h`, and `time.h`, instead of the C++ wrapper headers such as `<cstdio>`, `<cstdlib>`, `<cstring>`, `<cmath>`, and `<ctime>`.
 
 ## Compile-time vs link-time
 
@@ -176,12 +176,14 @@ Pure template, `constexpr`, and `inline` headers with none of those are fully su
 <version> <source_location>
 ```
 
-C-compat wrappers, backed by libc/libm:
+C library headers, backed by libc/libm:
 
 ```
-<cstdint> <cstddef> <cstring> <cmath> <cstdarg> <climits> <cfloat>
-<cinttypes> <cstdlib>
+<stdint.h> <stddef.h> <string.h> <math.h> <stdarg.h> <limits.h> <float.h>
+<inttypes.h> <stdlib.h> <stdio.h> <time.h>
 ```
+
+Prefer these `.h` C headers from libc directly. Do not route ordinary C library usage through the C++ wrapper headers unless a specific C++ interop reason requires it.
 
 `*` Avoid throwing accessors: `optional::value()`, bad `std::get`, `string_view::at()`, and bad `substr()`. Use `*opt`, `std::get_if`, and `operator[]`.
 
@@ -264,13 +266,13 @@ Use namespaces to group subsystems.
 
 The namespace organizes the functions. The data stays in structs passed as parameters.
 
-### Keep a system in one file
+### Keep a system in one `.hpp` and one `.cpp`
 
-Prefer one translation unit per subsystem.
+Prefer one translation unit per subsystem: one public `.hpp` and one implementation `.cpp`.
 
-That can be one `.hpp` / `.cpp` pair, or one `.hpp` for header-only code.
+Use a header-only `.hpp` only when the subsystem is genuinely header-only. The normal shape is still a declaration/definition split.
 
-This keeps the single-header spirit while preserving a normal declaration/definition split.
+This keeps the single-header spirit at the subsystem level without literally putting the whole system in one file.
 
 The benefits:
 
@@ -279,7 +281,7 @@ The benefits:
 - **A clean boundary.** The `.hpp` is the public subsystem surface. The `.cpp` holds everything else.
 - **Fewer dependencies.** The graph is subsystem-to-subsystem, not file-per-class sprawl.
 
-The unit of modularity in C♭ is the **subsystem file**, not the class.
+The unit of modularity in C♭ is the **subsystem pair**, not the class.
 
 ## Boilerplate
 

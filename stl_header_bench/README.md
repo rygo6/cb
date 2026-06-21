@@ -1,6 +1,6 @@
 # STL header-only benchmark harness
 
-This directory contains a generated benchmark suite for the CFlat C++-specific STL header-only claims. C-wrapper headers such as `<cstring>`, `<cmath>`, and `<cstdint>` are intentionally excluded.
+This directory contains a generated benchmark suite for the CFlat C++-specific STL header-only claims. Direct libc headers such as `string.h`, `math.h`, and `stdint.h` are treated as ordinary C/POSIX usage, so C++ wrapper headers such as `<cstring>`, `<cmath>`, and `<cstdint>` are intentionally excluded.
 
 Run:
 
