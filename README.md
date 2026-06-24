@@ -219,18 +219,74 @@ Expose checks separately as `full()`, `empty()`, `capacity()`, or `remaining()`.
 
 This means hot code does not pay for checks it does not need. Callers ask for checks only where state is genuinely uncertain.
 
-## Avoid heap allocation
+## Prefer hot data packing in fat structs with anonymous structs.
 
-This is the memory-policy rationale.
+A fat struct holds the full program state by value as a single static or stack object. Within it, group fields by access frequency using anonymous structs so hot fields land on the same cache lines.
+
+```cpp
+struct App {
+    // Hot: touched every frame. Fields read together, packed together.
+    struct {
+        float4x4 view;
+        float4x4 proj;
+        float3   eyePos;
+        float    time;
+        uint32_t frameIndex;
+    };
+
+    // Hot: input state read every frame alongside the above but written
+    // by a separate event path, so kept in its own anonymous grouping.
+    struct {
+        float2 mouseDelta;
+        float2 mousePos;
+        bool   keys[KEY_COUNT];
+    };
+
+    // Warm: updated on resize or input events.
+    struct {
+        uint32_t width;
+        uint32_t height;
+        float    aspect;
+        bool     resizePending;
+    } screen;
+
+    // Cold: set once at startup, never touched in the frame loop.
+    struct {
+        VkDevice         device;
+        VkQueue          queue;
+        VkCommandPool    cmdPool;
+        VkDescriptorPool descPool;
+    } vk;
+};
+
+static App app;
+```
+
+The anonymous `struct { ... };` at the top of `App` promotes its fields directly into `App`'s scope with no member-access prefix. That keeps the hot fields as readable as bare globals while still being a single allocation. The named inner structs (`screen`, `vk`) namespace their fields explicitly because callsites that touch them are already in a setup or event path where the extra token costs nothing.
+
+You can have multiple anonymous struct groupings within the same fat struct. Each one is a logical cluster of fields that are accessed together. Fields that are always read or written at the same time belong in the same anonymous struct so they pack onto the same cache lines. Fields from different access patterns belong in separate groupings, named or anonymous, so they do not pollute each other's lines.
+
+Pack hot fields first. The linker and allocator give you no cache-line guarantees across struct boundaries, but within a struct fields are laid out in declaration order. Putting the frame loop's data at the top of the fat struct maximizes the chance those fields share lines with each other rather than with cold init data.
+
+
+## Avoid heap allocation
 
 Prefer fixed memory with known lifetime and footprint:
 
 - **A single static "fat struct"** that owns long-lived state by value. One top-level object holds subsystems instead of scattering heap objects.
-- **Static / fixed-capacity containers** with inline storage: `Pool`, `Arena`, fixed-capacity `Array`, or `Vector<T, N>`.
+- **Static / fixed-capacity containers** with inline storage: `StaticPool`, `StaticArena`, fixed-capacity `StaticArray`, or `StaticVector<T, N>`.
 
 Use dynamic allocation only when size is truly unknowable.
 
-When you do use it, route it through one arena or a deliberate `operator new`.
+When you do need it, `operator new` / `operator delete` are unavailable (`-nostdlib++` drops them). Use libc directly: `malloc`/`free`, `mmap`/`munmap`, `posix_memalign`. Placement `new` still works (compiler intrinsic, no library call). You can fill in the necessary stubs to use these if so desired.
+
+However, if you need to use `malloc`/`free` so frequently that you find it hard to keep track of where to put a `free` this means your are doing something wrong. Generally `malloc`/`free` usage should be about as common and accessing a file via `mmap`/`munmap`.
+
+`malloc`/`free` are generally unnecessary for the simple file IO. Always prefer to `mmap`/`munmap` when reading files. Prefer to store data to disk in a format which can simply be memcpy'd directly from the mmap'd region.
+
+Most general memory needs can be dealt with via static pools, static arenas and static vectors. 
+
+For the scenario where you truly need something expandable you can `malloc` in the constructor and `free` in the destructor to still have RAII. Claude or Codex can one-shot the creation of any general purpose container using this markdown as direction. In all tests so far it has always produced something leaner, and still perfectly suitable, compared to what is in STL.
 
 ## Free functions over methods
 
