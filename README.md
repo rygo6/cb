@@ -141,31 +141,11 @@ There are minor version and diagnostic differences at the edges. That is why the
 
 libc remains fully usable. Prefer the direct libc/POSIX C headers, such as `stdio.h`, `stdlib.h`, `string.h`, `math.h`, and `time.h`, instead of the C++ wrapper headers such as `<cstdio>`, `<cstdlib>`, `<cstring>`, `<cmath>`, and `<ctime>`.
 
-## Compile-time vs link-time
-
-This distinction matters.
+## Usable standard headers
 
 STL **headers** still work at compile time. `-nostdlib++` only removes the standard C++ library from the link step.
 
 That means header-only facilities work. Link-time facilities do not unless you provide their missing symbols yourself.
-
-On clang, `-stdlib=libstdc++` selects the standard-library headers. libstdc++ and libc++ both have useful header-only subsets.
-
-## Usable standard headers
-
-This breakdown should be verified by linking representative usage at `-O0` under the C♭ flags.
-
-Do not verify only at `-O2`. The optimizer can delete code before it references missing runtime symbols.
-
-### The trigger that decides it
-
-A header is usable unless the code you instantiate hits one of three missing pieces:
-
-1. **Heap allocation**: `operator new` / `operator new[]` / `operator delete`.
-2. **A throw path**: `std::__throw_length_error`, `__throw_bad_alloc`, `__throw_logic_error`, `__throw_bad_function_call`, `__throw_system_error`, `__throw_out_of_range`, etc.
-3. **Out-of-line library symbols or static init**: iostreams, locale, `ios_base::Init`.
-
-Pure template, `constexpr`, and `inline` headers with none of those are fully supported.
 
 ### Fully supported
 
@@ -184,10 +164,6 @@ C library headers, backed by libc/libm:
 ```
 
 Prefer these `.h` C headers from libc directly. Do not route ordinary C library usage through the C++ wrapper headers unless a specific C++ interop reason requires it.
-
-`*` Avoid throwing accessors: `optional::value()`, bad `std::get`, `string_view::at()`, and bad `substr()`. Use `*opt`, `std::get_if`, and `operator[]`.
-
-`**` `<algorithm>` is fine for non-allocating use: `min`, `max`, `clamp`, `sort` over your own data. Include it explicitly.
 
 ### Conditionally supported
 
@@ -211,6 +187,20 @@ They hit allocation, throw paths, out-of-line symbols, or static init.
 
 To use them anyway, provide the missing pieces yourself. Allocation functions. `std::__throw_*` traps. Any other symbols the linker reports. That should be an explicit decision, not the default.
 
+### The trigger that decides it
+
+This breakdown should be verified by linking representative usage at `-O0` under the C♭ flags.
+
+Do not verify only at `-O2`. The optimizer can delete code before it references missing runtime symbols.
+
+A header is usable unless the code you instantiate hits one of three missing pieces:
+
+1. **Heap allocation**: `operator new` / `operator new[]` / `operator delete`.
+2. **A throw path**: `std::__throw_length_error`, `__throw_bad_alloc`, `__throw_logic_error`, `__throw_bad_function_call`, `__throw_system_error`, `__throw_out_of_range`, etc.
+3. **Out-of-line library symbols or static init**: iostreams, locale, `ios_base::Init`.
+
+Pure template, `constexpr`, and `inline` headers with none of those are fully supported.
+
 ## Containers and replacements
 
 When a standard facility breaks the profile, write or generate a small purpose-built replacement.
@@ -219,7 +209,9 @@ This is not about purity. It is about avoiding the three link-time failure categ
 
 A bespoke `Vector`, string, or helper can be smaller and easier to reason about than pulling in the full standard-library version.
 
-**Avoid `std::string` specifically.** It drags in `char_traits`, allocator machinery, throw paths, and many inline templates. Prefer plain buffers, `std::string_view` over owned storage, or a small custom string type.
+**Avoid `std::string` specifically.** It drags in `char_traits`, allocator machinery, throw paths, and many inline templates. Prefer plain buffers, `std::string_view` over owned storage, or a small custom string type. This easily becomes to slowest compiling source of templates in C++.
+
+## All Checks Compile Out In Release Builds
 
 **Check with asserts, not branches.** Container operations should assert preconditions in debug, then run straight-line in release. `push()` should `assert(!full())`, not carry an always-on capacity branch.
 
