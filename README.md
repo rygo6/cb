@@ -92,8 +92,6 @@ This is the point. Hidden lazy initialization becomes a visible build failure. U
 
 ## C99 / C-style features
 
-This is the rationale for the restored C99 and GNU C surface.
-
 clang and GCC already compile these constructs in C++ mode. The warnings are portability diagnostics. They are not codegen switches.
 
 C♭ does not care about ISO portability here. It cares that clang and GCC have stable, documented behavior for these constructs.
