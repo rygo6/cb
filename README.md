@@ -24,7 +24,7 @@ This is what the name means. C♭ is flat.
 
 No object model. No class hierarchy. No encapsulation-driven design. The normal shape of a program should be plain structs and free functions.
 
-C♭ prefers a **data-oriented approach**. Data layout and transformation come first. Objects that bundle data and behavior do not. Structs describe data. Free functions transform it. The program stays organized around how data moves through memory.
+C♭ prefers a data-oriented approach. Data layout and transformation come first. Objects that bundle data and behavior do not. Structs describe data. Free functions transform it. The program stays organized around how data moves through memory.
 
 C++ pulls in a lot of runtime surface by default. Exception unwinding. RTTI. libstdc++ symbols. Semantic interposition. Threadsafe-static guards.
 
@@ -264,6 +264,7 @@ You can have multiple anonymous struct groupings within the same fat struct. Eac
 
 Pack hot fields first. The linker and allocator give you no cache-line guarantees across struct boundaries, but within a struct fields are laid out in declaration order. Putting the frame loop's data at the top of the fat struct maximizes the chance those fields share lines with each other rather than with cold init data.
 
+To ensure a struct literally starts on a cache line you must use the attribute `__attribute__((aligned(64)))`. This may or more not be preferable depending. I would default to **not** using this on everything unless you have a specific reason to. Tightly packing data by access pattern in a fat struct is typically sufficient even if each struct does not literally start on a cacheline, as generally multiple parts of the fat struct will keep getting accessed to keep the whole fat struct in some level of cache. Explicit cache line alignment should only be used when testing proves it useful in situations of multi-threaded cache contention or sequentially operating on continguous equally-spaced elements in a array.
 
 ## Avoid heap allocation
 
