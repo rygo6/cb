@@ -275,7 +275,7 @@ Prefer fixed memory with known lifetime and footprint:
 
 Use dynamic allocation only when size is truly unknowable.
 
-When you do need it, `operator new` / `operator delete` are unavailable (`-nostdlib++` drops them). Use libc directly: `malloc`/`free`, `mmap`/`munmap`, `posix_memalign`. Placement `new` still works (compiler intrinsic, no library call). You can fill in the necessary stubs to use these if so desired.
+Use libc directly: `malloc`/`free`, `mmap`/`munmap`, `posix_memalign`.
 
 However, if you need to use `malloc`/`free` so frequently that you find it hard to keep track of where to put a `free` this means your are doing something wrong. Generally `malloc`/`free` usage should be about as common and accessing a file via `mmap`/`munmap`.
 
