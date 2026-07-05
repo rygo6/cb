@@ -10,8 +10,6 @@ It also restores the C99 and GNU C conveniences that clang and GCC already accep
 
 > **Note:** C♭ targets clang and GCC only. MSVC does not have the same flags, runtime behavior, or GNU extension surface. Use a GCC-family toolchain.
 >
-> clang supports much of GCC's GNU C/C++ surface. The important `-f*` flags, `__builtin_*`, `__attribute__`, statement expressions, designated initializers, compound literals, and VLAs all exist there. MSVC grew in a different direction, with different intrinsics and `__declspec`, so there is no faithful translation of this profile.
->
 > Beyond the technical mismatch: any self-respecting programmer should make an effort to be Microsoft-free in every way possible. Sticking to clang/GCC and an open toolchain is not just what C♭ requires. It is the right default.
 
 ## Philosophy
