@@ -28,13 +28,6 @@ C♭ prefers a data-oriented approach. Data layout and transformation come first
 
 C++ pulls in a lot of runtime surface by default. Exception unwinding. RTTI. libstdc++ symbols. Semantic interposition. Threadsafe-static guards.
 
-Most of that is irrelevant for programs that:
-
-- never throw exceptions
-- never use `dynamic_cast` or `typeid`
-- run only in-process
-- want predictable codegen
-
 C♭ strips that runtime surface while keeping cheap C++ syntax.
 
 It also restores selected GNU C-style extensions in C++ mode. That rationale lives in [C99 / C-style features](#c99--c-style-features).
