@@ -4,9 +4,7 @@
 
 This is not a new compiler. It is a C++ subset and build profile for projects that want C-like compile times, C-like binary size, and a small amount of modern C++ syntax.
 
-It keeps the C++ features that help C-style programming. Templates. Namespaces. Lambdas. Attributes. Header-only metaprogramming helpers.
-
-It also restores the C99 and GNU C conveniences that clang and GCC already accept in C++ mode. Designated initializers. Compound literals. VLAs. Statement expressions.
+Flat C++ is in a similiar category to 'Embedded C++' or 'Orthodox C++'. Except more explicitly focused on data oriented programming, and more pragamtic in pulling in new C23 and C++ features that aid that styleof programming.
 
 > **Note:** C♭ targets clang and GCC only. MSVC does not have the same flags, runtime behavior, or GNU extension surface. Use a GCC-family toolchain.
 >
