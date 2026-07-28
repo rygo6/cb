@@ -213,7 +213,8 @@ This means hot code does not pay for checks it does not need. Callers ask for ch
 A fat struct holds the full program state by value as a single static or stack object. Within it, group fields by access frequency using anonymous structs so hot fields land on the same cache lines.
 
 ```cpp
-struct App {
+// `inline struct App { ] app;` where you specify inline, the struct name and instance name at the end lets you statically allocated a single instance of the struct in a header.
+inline struct App {
     // Hot: touched every frame. Fields read together, packed together.
     struct {
         float4x4 view;
@@ -246,10 +247,10 @@ struct App {
         VkCommandPool    cmdPool;
         VkDescriptorPool descPool;
     } vk;
-};
-
-static App app;
+} app;
 ```
+
+
 
 The anonymous `struct { ... };` at the top of `App` promotes its fields directly into `App`'s scope with no member-access prefix. That keeps the hot fields as readable as bare globals while still being a single allocation. The named inner structs (`screen`, `vk`) namespace their fields explicitly because callsites that touch them are already in a setup or event path where the extra token costs nothing.
 
