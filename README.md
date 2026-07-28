@@ -214,8 +214,8 @@ A fat struct holds the full program state by value as a single static or stack o
 
 ```cpp
 // inline struct App { ] app;
-// Where you specify inline, the struct name and instance name at the end
-// lets you statically allocated a single instance of the struct in a header.
+// Where you specify inline, the struct name and the instance name at the end
+// will statically allocate a single instance of the struct in a header for all implementations to share.
 
 inline struct App {
     // Hot: touched every frame. Fields read together, packed together.
