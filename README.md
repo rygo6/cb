@@ -4,7 +4,9 @@
 
 This is not a new compiler. It is a C++ subset and build profile for projects that want C-like compile times, C-like binary size, and a small amount of modern C++ syntax.
 
-Flat C++ is in a similiar category to 'Embedded C++' or 'Orthodox C++'. Except more explicitly focused on data oriented programming, and more pragamtic in pulling in new C23 and C++ features that aid that style of programming.
+Flat C++ is in a similiar category to 'Embedded C++' or 'Orthodox C++'. Except more explicitly focused on data oriented programming, and more pragmatic in pulling in new C23 and C++ features that aid that style of programming.
+
+This approach to programming is preferable when high-performance, predictable execution time and running on resource constrained hardware is a primary concern. 
 
 > **Note:** C♭ targets clang and GCC only. MSVC does not have the same flags, runtime behavior, or GNU extension surface. Use a GCC-family toolchain.
 >
@@ -176,9 +178,7 @@ To use them anyway, provide the missing pieces yourself. Allocation functions. `
 
 ### The trigger that decides it
 
-This breakdown should be verified by linking representative usage at `-O0` under the C♭ flags.
-
-Do not verify only at `-O2`. The optimizer can delete code before it references missing runtime symbols.
+This breakdown should be verified by linking representative usage at `-O0` under the C♭ flags. Do not verify only at `-O2`. The optimizer can delete code before it references missing runtime symbols.
 
 A header is usable unless the code you instantiate hits one of three missing pieces:
 
@@ -192,9 +192,11 @@ Pure template, `constexpr`, and `inline` headers with none of those are fully su
 
 When a standard facility breaks the profile, write or generate a small purpose-built replacement.
 
-This is not about purity. It is about avoiding the three link-time failure categories above.
-
 A bespoke `Vector`, string, or helper can be smaller and easier to reason about than pulling in the full standard-library version.
+
+Claude is particularly capable of generating any basic container you need for your exact purpose.
+
+Prefer fixed or statically allocated containers. See [Avoid heap allocation](#Avoid-heap-allocation).
 
 **Avoid `std::string` specifically.** It drags in `char_traits`, allocator machinery, throw paths, and many inline templates. Prefer plain buffers, `std::string_view` over owned storage, or a small custom string type. This easily becomes to slowest compiling source of templates in C++.
 
@@ -272,7 +274,7 @@ However, if you need to use `malloc`/`free` so frequently that you find it hard 
 
 `malloc`/`free` are generally unnecessary for the simple file IO. Always prefer to `mmap`/`munmap` when reading files. Prefer to store data to disk in a format which can simply be memcpy'd directly from the mmap'd region.
 
-Most general memory needs can be dealt with via static pools, static arenas and static vectors. 
+Most general memory needs can be dealt with via static pools, static arenas and static vectors. Heap allocation is for the rare occurrence when you have no idea about the prospective lifetime, or prospective size, of a given memory need. In most scenarios you know more about your expected memory needs to use something more efficient. To be using heap allocation as a default for all memory needs means there is something wrong your design. Reference this article if you'd like to read more into this: [**Memory Allocation Strategies***](https://www.gingerbill.org/article/2019/02/01/memory-allocation-strategies-001/) 
 
 For the scenario where you truly need something expandable you can `malloc` in the constructor and `free` in the destructor to still have RAII. Claude or Codex can one-shot the creation of any general purpose container using this markdown as direction. In all tests so far it has always produced something leaner, and still perfectly suitable, compared to what is in STL.
 
