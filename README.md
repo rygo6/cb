@@ -213,7 +213,10 @@ This means hot code does not pay for checks it does not need. Callers ask for ch
 A fat struct holds the full program state by value as a single static or stack object. Within it, group fields by access frequency using anonymous structs so hot fields land on the same cache lines.
 
 ```cpp
-// `inline struct App { ] app;` where you specify inline, the struct name and instance name at the end lets you statically allocated a single instance of the struct in a header.
+// inline struct App { ] app;
+// Where you specify inline, the struct name and instance name at the end
+// lets you statically allocated a single instance of the struct in a header.
+
 inline struct App {
     // Hot: touched every frame. Fields read together, packed together.
     struct {
