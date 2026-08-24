@@ -162,7 +162,7 @@ But first lets start with whats good.
 - Default Struct Values
   - Simply makes life easier.
 - Namespaces
- - Simply makes life easier.
+  - Simply makes life easier.
 - std::initializer_list
   - Simply makes life easier.
 - Attributes you'd typically make a cumbersome macro for.
@@ -192,9 +192,6 @@ But first lets start with whats good.
   - const ref method parameters can provide nice syntactical sugar and some additional guarantees on something passed in with no negatives.
   - refs for mutable parameters forego one of the critical syntax distinctions of C. The -> pointer syntax is meant to clearly signify distant access while . dot syntax signifies local access. All distant access is made more clear with -> syntax and should be done that way.
   - Mutables refs enable operator overloads and matrix multiplication overloads which are highly useful, but unfortunately can only be implement in this manner.
-- Move semantics.
-  - && is useful in methods and constructors to enforce the need for the parameter being a temporary.
-  - Other than that move semantics are a work around for C++ having developed modality of using mutable refs for everythng when it should have been pointers. If you need to change an lvalue to point at the contents of another lvalue that is simply setting a pointer equal to another pointer.
 
 ### The Bad
 
@@ -212,6 +209,9 @@ But first lets start with whats good.
   - Made irrelevant if you don't do complex logic in a constructor that could fail and needs to be caught.
 - RTTI 
   - Useful. But heavy hidden internal machinery. Any type information you need is better handled yourself.
+- Move semantics.
+  - && is useful in methods and constructors to enforce the need for the parameter being a temporary.
+  - Other than that move semantics are a work around for C++ having developed modality of using mutable refs for everythng when it should have been pointers. If you need to change an lvalue to point at the contents of another lvalue that is simply setting a pointer equal to another pointer.
 
 ## C++ Compiler Setup
 
