@@ -458,13 +458,9 @@ Prefer these `.h` C headers from libc directly. Do not route ordinary C library 
 
 ### Unsupported
 
-These need libstdc++ for normal use:
+These need libstdc++ for normal use. They hit allocation, throw paths, out-of-line symbols, or static init.
 
 `<vector>` `<string>` `<map>` `<unordered_map>` `<set>` `<deque>`, `<iostream>` `<sstream>` `<fstream>`, `<mutex>` `<regex>` `<locale>`.
-
-They hit allocation, throw paths, out-of-line symbols, or static init.
-
-### The trigger that decides it
 
 A header is usable unless the code you instantiate hits one of three missing pieces:
 
