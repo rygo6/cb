@@ -195,6 +195,8 @@ But first lets start with whats good.
 
 ### The Bad
 
+- STL
+  - There are useful things in STL. Overall it is a landmine of performance footguns and compile time footguns. Often providing funcitonality far more complex than you'd ever need.
 - Encapsulaiton, access modifiers, classes, friend classes.
   - Aruably worth exploring 30 years ago but now pointless to detrimental. Also partially redundant in a C-Style of programming.
   - "internal" or "private" methods can effectively be accomplished in an implementation of free-floating methods by making them static in the implementation file.
