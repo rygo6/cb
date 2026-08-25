@@ -2,6 +2,21 @@
 
 # Flat C++ Dialect - C♭ Cb CFlat 
 
+## TLDR
+
+C written under a C++ compiler with just enough C++ enabled to allow a small subset syntactical sugar and qualit of life improvements from C++.
+
+Primarily this is so that a program written in C can utilize:
+- Templates
+- Namespaces
+- Default Struct Values
+- Destructors
+- Consteval
+
+Also paired with a standard `Flat` library with containers tailored to Data-Oriented Programing.
+
+## Premise
+
 C++ is a pioneering language which has proven out some incredibly usefull tools for programming. However at the same time, many of it's explorations have simoualaneously proven to be not be useful, to even detrimental. Over the years C++ has accumulated considerable cruft and functionality which in retrospect we can see as being bad, or short-sighted, or made moot by other advents.
 
 In response to this there have been numerous new languages attemptng restart from first principles. Building something compeletely fresh from the ground up.
